@@ -27,8 +27,8 @@
                             <div class="filter-list-item">
                                 <label><warehouse:message code="requisition.dateIssuedBetween.label" default="Date Issued Between"/></label>
                                 <div>
-                                    <g:jqueryDatePicker name="dateIssuedFrom" value="${params.dateIssuedFrom}" autocomplete="off"/>
-                                    <g:jqueryDatePicker name="dateIssuedTo" value="${params.dateIssuedTo}" autocomplete="off"/>
+                                    <g:jqueryDatePicker name="startDate" value="${params.startDate}" autocomplete="off"/>
+                                    <g:jqueryDatePicker name="endDate" value="${params.endDate}" autocomplete="off"/>
                                 </div>
                             </div>
 
@@ -36,7 +36,7 @@
                             <div class="filter-list-item">
                                 <label><warehouse:message code="product.label"/></label>
                                 <p>
-                                    <g:autoSuggest id="product" name="product" styleClass="text"
+                                    <g:autoSuggest id="product" name="product" styleClass="text" valueId="" valueName=""
                                                    jsonUrl="${request.contextPath }/json/findProductByName?skipQuantity=true"/>
                                 </p>
                             </div>
@@ -55,7 +55,7 @@
                                 <label><warehouse:message code="catalogs.name.label"/></label>
                                 <p>
                                     <g:selectCatalogs id="catalogs"
-                                                      name="catalogs" noSelection="['null':'']"
+                                                      name="catalogs" noSelection="['':'']"
                                                       value="${params?.catalogs}"
                                                       style="width:100%;"
                                                       class="chzn-select-deselect"/>
@@ -67,6 +67,7 @@
                                     <g:selectTags name="tags"
                                                   id="tags"
                                                   value="${params?.tags}"
+                                                  noSelection="['':'']"
                                                   multiple="true"
                                                   class="chzn-select-deselect"/>
                                 </p>
@@ -163,14 +164,14 @@
         "sPaginationType": "two_button",
         "sAjaxSource": "${request.contextPath}/json/getRequestDetailReport",
         "fnServerParams": function ( data ) {
-          data.push({ name: "destination.id", value: $("#destinationId").val() });
-          data.push({ name: "origin.id", value: $("#originId").val() });
-          data.push({ name: "dateIssuedFrom", value: $("#dateIssuedFrom").val() });
-          data.push({ name: "dateIssuedTo", value: $("#dateIssuedTo").val() });
+          data.push({ name: "destinationId", value: $("#destinationId").val() });
+          data.push({ name: "originId", value: $("#origin").val() });
+          data.push({ name: "startDate", value: $("#startDate").val() });
+          data.push({ name: "endDate", value: $("#endDate").val() });
           data.push({ name: "category", value: $("#category").val() });
           data.push({ name: "tags", value: $("#tags").val() });
           data.push({ name: "catalogs", value: $("#catalogs").val() });
-          data.push({ name: "product", value: $("#product").val() });
+          data.push({ name: "productId", value: $("#product").val() });
           data.push({ name: "reasonCode", value: $("#reasonCode").val() });
         },
         "fnServerData": function ( sSource, aoData, fnCallback ) {
@@ -238,14 +239,14 @@
         $(".download-button").click(function(event) {
           event.preventDefault();
           var params = {
-            "destination.id": $("#destinationId").val(),
-            "origin.id": $("#originId").val(),
-            dateIssuedFrom: $("#dateIssuedFrom").val(),
-            dateIssuedTo: $("#dateIssuedTo").val(),
+            destinationId: $("#destinationId").val(),
+            originId: $("#originId").val(),
+            startDate: $("#startDate").val(),
+            endDate: $("#endDate").val(),
             category: $("#category").val(),
             tags: $("#tags").val(),
             catalogs: $("#catalogs").val(),
-            product: $("#product").val(),
+            productId: $("#product").val(),
             reasonCode: $("#reasonCode").val(),
             format: "text/csv"
           };
@@ -255,20 +256,20 @@
 
       $(".submit-button").click(function(event){
         event.preventDefault();
-        var originId = $("#originId").val();
-        var dateIssuedFrom = $("#dateIssuedFrom").val();
-        var dateIssuedTo = $("#dateIssuedTo").val();
+        var originId = $("#origin").val();
+        var startDate = $("#startDate").val();
+        var endDate = $("#endDate").val();
         var validated = true;
 
-        if (!dateIssuedTo || !dateIssuedFrom || !originId) {
+        if (!endDate || !startDate || !originId) {
           $.notify("All report parameters fields are required", "error");
           validated = false
         }
 
-        dateIssuedFrom = Date.parse(dateIssuedFrom);
-        dateIssuedTo = Date.parse(dateIssuedTo);
+        startDate = Date.parse(startDate);
+        endDate = Date.parse(endDate);
 
-        if (dateIssuedFrom > dateIssuedTo) {
+        if (startDate > endDate) {
           $.notify("Start date must occur before end date", "error");
           validated = false
         }
